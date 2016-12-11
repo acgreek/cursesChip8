@@ -14,16 +14,27 @@ chip8 myChip8;
 int max_x, max_y;
 
 void  setupGraphics(){ 
-    initscr();
-    noecho();
-    curs_set(FALSE);
-    srand (time(NULL));
+//    initscr();
+ //   noecho();
+  //  curs_set(FALSE);
+   // srand (time(NULL));
     getmaxyx(stdscr, max_y, max_x);
 }
 void setupInput() {
 }
+int delay =3000;
 void drawGraphics(int mx, int my, unsigned char * array) { 
-    sleep(1);
+   // clear();
+   	for (int y=0; y <my; y++)  {
+   	 for (int x=0; x <mx; x++)  {
+//   		mvprintw(y, x, "%c", array[x + (y * my)] ? 'X': ' ' );
+		 	printf("%c",array[x + (y * mx)] ? 'X': ' ');
+     }
+		 printf("\n");
+    }
+    usleep(delay);
+//    wnoutrefresh(stdscr);
+ //   doupdate();
 }
 bool done =false;
 
@@ -44,14 +55,13 @@ int main(int argc, char **argv)
  
   // Emulation loop
   while (!done) {
+
     // Emulate one cycle
     myChip8.emulateCycle();
  
     // If the draw flag is set, update the screen
     if(myChip8.drawFlag) {
       drawGraphics(myChip8.getMaxX(),myChip8.getMaxY(), myChip8.getGfx() );
-			getch();
-
     }
  
 //    sleep(1);
