@@ -117,24 +117,29 @@ class chip8 {
 
 			drawFlag = false;
 			unsigned short opcode = memory[pc] << 8 | memory[pc + 1];
-			switch(opcode) {
-				case 0x00E0: //clear screen 
-					printf("clear screen\n");
-					drawFlag = true;
-					clear();
-					break; 
-				case 0x00EE: // return 
-					if (sp == 0) {
-						printf("sp == 0 at ps %d\n", pc);
-						exit(-1);
-					} 
-					pc = stack[sp -1] ;
-					sp--;
-					return ;
-			};
 			short t1,t2;
 			int i,j;
 			switch(opcode & 0xF000) {
+				case 0x0000:
+					switch(opcode) {
+						case 0x00E0: //clear screen 
+							printf("clear screen\n");
+							drawFlag = true;
+							clear();
+							break; 
+						case 0x00EE: // return 
+							if (sp == 0) {
+								printf("sp == 0 at ps %d\n", pc);
+								exit(-1);
+							} 
+							pc = stack[sp -1] ;
+							sp--;
+							return ;
+						default: 
+						  printf("known opcode: %x \n", opcode);
+							exit(-1);
+					};
+					break;
 				case 0x1000: //1NNN	Flow	goto NNN;	Jumps to address NNN.
 					pc = opcode & 0xFFF;
 					return;
@@ -228,6 +233,9 @@ class chip8 {
 				case 0xF000:
 					handleF(opcode);
 					break;
+				default: 
+				  printf("known opcode: %x \n", opcode);
+					exit(-1);
 			};
 			pc+=2;
 		}

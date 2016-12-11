@@ -44,6 +44,10 @@ void term (int sig) {
 
 int main(int argc, char **argv) 
 {
+	const char *rom= "pong.ch8";
+	if (argc >=2) 
+		rom = argv[1];
+
   signal(SIGTERM, term);
   // Set up render system and register input callbacks
   setupGraphics();
@@ -51,7 +55,7 @@ int main(int argc, char **argv)
  
   // Initialize the Chip8 system and load the game into the memory  
   myChip8.initialize();
-  myChip8.loadGame("pong.ch8");
+  myChip8.loadGame(rom);
  
   // Emulation loop
   while (!done) {
