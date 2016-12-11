@@ -224,10 +224,10 @@ class chip8 {
 				case 0xE000: 
 					t1= (opcode & 0xF00) >> 8;
 					if ((opcode &0xFF) == 0x9E) {
-						if (keypress() == v[t1]) //EX9E	KeyOp	if(key()==Vx)	Skips the next instruction if the key stored in VX is pressed. (Usually the next instruction is a jump to skip a code block)
+						if (keypress(v[t1])) //EX9E	KeyOp	if(key()==Vx)	Skips the next instruction if the key stored in VX is pressed. (Usually the next instruction is a jump to skip a code block)
 							pc+=2;
 					} else { // EXA1	KeyOp	if(key()!=Vx)	Skips the next instruction if the key stored in VX isn't pressed. (Usually the next instruction is a jump to skip a code block)
-						if (keypress() != v[t1]) 
+						if (!keypress(v[t1])) 
 							pc+=2;
 					}
 					break;
@@ -241,16 +241,20 @@ class chip8 {
 			pc+=2;
 		}
 		void setKeys(char k) {
-			if (k>= '0' || k <= '9')
+			ckey=-1;
+			if (k>= '0' && k <= '9')
 				ckey = k - '0';
-			if (k>= 'a' || k <= 'f')
-				ckey = k - 'a';
-
+			if (k>= 'a' && k <= 'f')
+				ckey = 10 + (k - 'a');
+			if (ckey != -1)
+				key[ckey] = 1;
 		}
-		short keypress() {
-			short t = ckey;
-			ckey =0;
-			return t;
+		bool keypress(unsigned short k) {
+			if (k >0xF)
+				return 0;
+			int pressed = key[k];
+		  key[k] = 0;
+			return pressed;
 		}
 
 		// If the draw flag is set, update the screen
