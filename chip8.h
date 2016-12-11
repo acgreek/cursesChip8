@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 /*
 	 0NNN	Call		Calls RCA 1802 program at address NNN. Not necessary for most ROMs.
 	 00E0	Display	disp_clear()	Clears the screen.
@@ -99,8 +100,6 @@ class chip8 {
 		void loadGame(std::string filename) {
 			FILE *fd = fopen(filename.c_str(), "r");
 			fread(memory + pc, 1,sizeof(memory) -pc , fd);
-			//for(int i = 0; i < bufferSize; ++i)
-			// memory[i + 512] = buffer[i];	
 			fclose(fd);
 		} 
 
@@ -123,21 +122,23 @@ class chip8 {
 				case 0x0000:
 					switch(opcode) {
 						case 0x00E0: //clear screen 
-							printf("clear screen\n");
-							drawFlag = true;
-							clear();
+//							printf("clear screen\n");
+					    drawFlag = true;
+							memset(gfx, 0, sizeof(gfx));
 							break; 
 						case 0x00EE: // return 
 							if (sp == 0) {
 								printf("sp == 0 at ps %d\n", pc);
-								exit(-1);
+								done =true;
 							} 
 							pc = stack[sp -1] ;
 							sp--;
-							return ;
+							break; //we want it to move to next instruction 
 						default: 
-						  printf("known opcode: %x \n", opcode);
-							exit(-1);
+						  if (opcode == 0) {
+								done =true;
+						  	printf("known opcode: %x \n", opcode);
+							} 
 					};
 					break;
 				case 0x1000: //1NNN	Flow	goto NNN;	Jumps to address NNN.
@@ -146,7 +147,7 @@ class chip8 {
 				case 0x2000:  //2NNN	Flow	*(0xNNN)()	Calls subroutine at NNN.
 					if (sp == sizeof(stack)/sizeof(short))  {
 						printf("stack overflow at ps %d\n", pc);
-						exit(-1);
+						done =true;
 					}
 					stack[sp] = pc;
 					sp++;
@@ -191,7 +192,7 @@ class chip8 {
 					break;
 				case 0xA000: // ANNN	MEM	I = NNN	Sets I to the address NNN.
 					t1=(opcode & 0xFFF);
-					memory[I] = t1;
+					I = t1;
 					break;
 				case 0xB000: // BNNN	Flow	PC=V0+NNN	Jumps to the address NNN plus V0.
 					t1=(opcode & 0xFFF) ;
@@ -207,7 +208,7 @@ class chip8 {
 
 					v[0xF] = 0;
 					t1=((opcode & 0xF00) >>8) &0xf;
-					t2=(opcode & 0xF0 >> 4) & 0xf;
+					t2=((opcode & 0xF0) >> 4) & 0xf;
 					for (j=0; j < (opcode &0xF); j++) {
 						int pixel = memory[I+ j];
 						for (i=0; i< 8; i++) {
@@ -235,7 +236,7 @@ class chip8 {
 					break;
 				default: 
 				  printf("known opcode: %x \n", opcode);
-					exit(-1);
+					done =true;
 			};
 			pc+=2;
 		}
@@ -274,7 +275,7 @@ class chip8 {
 					break;
 				case 4: //8XY4	Math	Vx += Vy	Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
 					v[0xF] = 0;
-					if (Vx + Vy > 255)
+					if (((int)Vx +(int) Vy) > USHRT_MAX)
 						v[0xF] = 1;
 					Vx+= Vy;
 					break;
@@ -293,9 +294,11 @@ class chip8 {
 					if (Vy < Vx) 
 						v[0xF] = 0;
 					Vx= Vy - Vx;
+					break;
 				case 0xE: //8XYE	BitOp	Vx << 1	Shifts VX left by one. VF is set to the value of the most significant bit of VX before the shift.[2]
-					v[0xF] = (Vx > 15) & 1;
+					v[0xF] = (Vx & 0x80) >0;
 					Vx= Vx<<1;
+					break;
 			}
 		}
 		void handleF(unsigned short opcode) {

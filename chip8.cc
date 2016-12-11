@@ -7,6 +7,9 @@
 #include <iostream>
 #include <signal.h>
 #include "keyboard.h"
+
+bool done =false;
+
 #include "chip8.h" // Your cpu core implementation
  
 chip8 myChip8;
@@ -14,29 +17,28 @@ chip8 myChip8;
 int max_x, max_y;
 
 void  setupGraphics(){ 
-//    initscr();
- //   noecho();
-  //  curs_set(FALSE);
-   // srand (time(NULL));
-    getmaxyx(stdscr, max_y, max_x);
+	initscr();
+	noecho();
+	curs_set(FALSE);
+	srand (time(NULL));
+	getmaxyx(stdscr, max_y, max_x);
 }
 void setupInput() {
 }
-int delay =3000;
+int delay =10000;
 void drawGraphics(int mx, int my, unsigned char * array) { 
-   // clear();
+    clear();
    	for (int y=0; y <my; y++)  {
    	 for (int x=0; x <mx; x++)  {
-//   		mvprintw(y, x, "%c", array[x + (y * my)] ? 'X': ' ' );
-		 	printf("%c",array[x + (y * mx)] ? 'X': ' ');
+   		mvprintw(y, x, "%c", array[x + (y * mx)] ? 'X': ' ' );
+//		 	printf("%c",array[x + (y * mx)] ? 'X': ' ');
      }
-		 printf("\n");
+//		 printf("\n");
     }
     usleep(delay);
-//    wnoutrefresh(stdscr);
- //   doupdate();
+    wnoutrefresh(stdscr);
+   doupdate();
 }
-bool done =false;
 
 void term (int sig) {
   done = true;
@@ -76,6 +78,6 @@ int main(int argc, char **argv)
     }
   }
  
-//  endwin();
+  endwin();
   return 0;
 }
