@@ -240,12 +240,17 @@ class chip8 {
 			};
 			pc+=2;
 		}
-		void setKeys(char k) {
-			ckey=-1;
+		char keyConvert(char k) {
+			char ckey=-1;
 			if (k>= '0' && k <= '9')
 				ckey = k - '0';
 			if (k>= 'a' && k <= 'f')
 				ckey = 10 + (k - 'a');
+			return ckey;
+		}
+
+		void setKeys(char k) {
+		  ckey = keyConvert(k);
 			if (ckey != -1)
 				key[ckey] = 1;
 		}
@@ -312,7 +317,7 @@ class chip8 {
 					Vx = delay_timer;
 					break;	
 				case 0x0A: // FX0A	KeyOp	Vx = get_key()	A key press is awaited, and then stored in VX. (Blocking Operation. All instruction halted until next key event)
-					Vx = getchar();
+					Vx = keyConvert(getchar());
 					break;
 				case 0x15: // FX15	Timer	delay_timer(Vx)	Sets the delay timer to VX.
 					delay_timer =Vx;
