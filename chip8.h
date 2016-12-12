@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <arpa/inet.h>
 /*
 	 0NNN	Call		Calls RCA 1802 program at address NNN. Not necessary for most ROMs.
 	 00E0	Display	disp_clear()	Clears the screen.
@@ -69,7 +70,10 @@ static unsigned char chip8_fontset[80] =
 
 class chip8 {
 	public: 
-		chip8() : drawFlag(false) {};
+		chip8() : drawFlag(false), done() {};
+		bool isDone() const {
+			return done;
+		}
 		void initialize() {
 			pc     = 0x200;  // Program counter starts at 0x200
 			//opcode = 0;      // Reset current opcode	
@@ -77,15 +81,20 @@ class chip8 {
 			sp     = 0;      // Reset stack pointer
 
 			// Clear display	
+			memset(gfx, 0, sizeof(gfx));		
 			// Clear stack
 			// Clear registers V0-VF
+			memset(v, 0, sizeof(v));		
 			// Clear memory
+			memset(memory, 0, sizeof(memory));		
 
 			// Load fontset
 			for(int i = 0; i < 80; ++i)
 				memory[i] = chip8_fontset[i];		
 
 			// Reset timers
+			delay_timer=0;
+			sound_timer=0;
 		}
 		int getMaxX()const  {
 			return 64;
@@ -97,6 +106,10 @@ class chip8 {
 			return gfx;
 		}
 
+    void LoadInstruction(int offset, unsigned short opcode) {
+			opcode = htons(opcode);
+			memcpy(memory + pc + (2*offset),&opcode,2);
+		} 
 		void loadGame(std::string filename) {
 			FILE *fd = fopen(filename.c_str(), "r");
 			fread(memory + pc, 1,sizeof(memory) -pc , fd);
@@ -264,7 +277,10 @@ class chip8 {
 
 		// If the draw flag is set, update the screen
 		bool drawFlag;
+#ifndef UNITTEST 
 	private:
+#endif
+
 		short ckey;
 		void handle8(unsigned short opcode) {
 			unsigned char & Vx = v[(opcode & 0xF00) >> 8];
@@ -368,4 +384,5 @@ class chip8 {
 		unsigned short stack[16];
 		unsigned short sp;
 		unsigned char key[16];
+		bool done;
 };

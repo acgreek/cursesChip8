@@ -8,7 +8,7 @@
 #include <signal.h>
 #include "keyboard.h"
 
-bool done =false;
+bool teriminated = false;
 
 #include "chip8.h" // Your cpu core implementation
  
@@ -41,7 +41,7 @@ void drawGraphics(int mx, int my, unsigned char * array) {
 }
 
 void term (int sig) {
-  done = true;
+   teriminated = true;
 } 
 
 int main(int argc, char **argv) 
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
   myChip8.loadGame(rom);
  
   // Emulation loop
-  while (!done) {
+  while (!myChip8.isDone() && teriminated == false) {
 
     // Emulate one cycle
     myChip8.emulateCycle();
