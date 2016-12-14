@@ -49,7 +49,7 @@
  FX65	MEM	reg_load(Vx,&I)	Fills V0 to VX (including VX) with values from memory starting at address I.[4]
  */
 static unsigned char chip8_fontset[80] =
-{ 
+{
 	0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
 	0x20, 0x60, 0x20, 0x20, 0x70, // 1
 	0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -69,28 +69,28 @@ static unsigned char chip8_fontset[80] =
 };
 
 class chip8 {
-	public: 
+	public:
 		chip8() : drawFlag(false), done() {};
 		bool isDone() const {
 			return done;
 		}
 		void initialize() {
 			pc     = 0x200;  // Program counter starts at 0x200
-			//opcode = 0;      // Reset current opcode	
+			//opcode = 0;      // Reset current opcode
 			I      = 0;      // Reset index register
 			sp     = 0;      // Reset stack pointer
 
-			// Clear display	
-			memset(gfx, 0, sizeof(gfx));		
+			// Clear display
+			memset(gfx, 0, sizeof(gfx));
 			// Clear stack
 			// Clear registers V0-VF
-			memset(v, 0, sizeof(v));		
+			memset(v, 0, sizeof(v));
 			// Clear memory
-			memset(memory, 0, sizeof(memory));		
+			memset(memory, 0, sizeof(memory));
 
 			// Load fontset
 			for(int i = 0; i < 80; ++i)
-				memory[i] = chip8_fontset[i];		
+				memory[i] = chip8_fontset[i];
 
 			// Reset timers
 			delay_timer=0;
@@ -109,16 +109,16 @@ class chip8 {
     void LoadInstruction(int offset, unsigned short opcode) {
 			opcode = htons(opcode);
 			memcpy(memory + pc + (2*offset),&opcode,2);
-		} 
+		}
 		void loadGame(std::string filename) {
 			FILE *fd = fopen(filename.c_str(), "r");
 			fread(memory + pc, 1,sizeof(memory) -pc , fd);
 			fclose(fd);
-		} 
+		}
 
 		void emulateCycle() {
 			emulateCycle_();
-			if (delay_timer) 
+			if (delay_timer)
 				delay_timer--;
 			if (sound_timer)
 				sound_timer--;
@@ -134,24 +134,43 @@ class chip8 {
 			switch(opcode & 0xF000) {
 				case 0x0000:
 					switch(opcode) {
-						case 0x00E0: //clear screen 
+						case 0x00FD: // stop emulator
 //							printf("clear screen\n");
-					    drawFlag = true;
+							done =true;
+							break;
+						case 0x00Fb: // scroll 4 pixels to the right
+							// not implemented
+							abort();
+							break;
+						case 0x00Fc: // scroll 4 pixels to the left
+							// not implemented
+							abort();
+							break;
+						case 0x00FF: // enabled extend screen mode
+							// not implemented
+							abort();
+							break;
+						case 0x00Fe: // disable extend screen mode
+							abort();
+							break;
+						case 0x00E0: //clear screen
+//							printf("clear screen\n");
+						    drawFlag = true;
 							memset(gfx, 0, sizeof(gfx));
-							break; 
-						case 0x00EE: // return 
+							break;
+						case 0x00EE: // return
 							if (sp == 0) {
 								printf("sp == 0 at ps %d\n", pc);
 								done =true;
-							} 
+							}
 							pc = stack[sp -1] ;
 							sp--;
-							break; //we want it to move to next instruction 
-						default: 
-						  if (opcode == 0) {
+							break; //we want it to move to next instruction
+						default:
+							if (opcode != 0) {
 								done =true;
-						  	printf("known opcode: %x \n", opcode);
-							} 
+								printf("known opcode: %x \n", opcode);
+							}
 					};
 					break;
 				case 0x1000: //1NNN	Flow	goto NNN;	Jumps to address NNN.
@@ -169,26 +188,26 @@ class chip8 {
 				case 0x3000:   //3XNN	Cond	if(Vx==NN)	Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to skip a code block)
 					t1=(opcode & 0xF00) >>8;
 					t2=(opcode & 0xFF);
-					if (v[t1] == t2) 
-						pc+=2;
+					if (v[t1] == t2)
+						pc= (pc +2) & 0xFFF;
 					break;
 				case 0x4000: //4XNN	Cond	if(Vx!=NN)	Skips the next instruction if VX doesn't equal NN. (Usually the next instruction is a jump to skip a code block)
 					t1=(opcode & 0xF00) >>8;
 					t2=(opcode & 0xFF);
-					if (v[t1] != t2) 
-						pc+=2;
+					if (v[t1] != t2)
+						pc= (pc + 2) & 0xFFF;
 					break;
 				case 0x5000: //5XY0	Cond	if(Vx==Vy)	Skips the next instruction if VX equals VY. (Usually the next instruction is a jump to skip a code block)
 					t1=(opcode & 0xF00) >>8;
 					t2=(opcode & 0xF0 >> 4);
-					if (v[t1] == v[t2]) 
-						pc+=2;
+					if (v[t1] == v[t2])
+						pc= (pc +2) & 0xFFF;
 					break;
 				case 0x6000: //6XNN	Const	Vx = NN	Sets VX to NN.
 					t1=(opcode & 0xF00) >>8;
 					t2=(opcode & 0xFF);
 					v[t1]  = t2;
-					break; 
+					break;
 				case 0x7000: //  7XNN	Const	Vx += NN	Adds NN to VX.
 					t1=(opcode & 0xF00) >>8;
 					t2=(opcode & 0xFF);
@@ -200,8 +219,8 @@ class chip8 {
 				case 0x9000: //9XY0	Cond	if(Vx!=Vy)	Skips the next instruction if VX doesn't equal VY. (Usually the next instruction is a jump to skip a code block)
 					t1 = v[(opcode & 0xF00) >> 8];
 					t2 = v[(opcode & 0xF0) >> 4];
-					if (t1 != t2) 
-						pc+=2;
+					if (t1 != t2)
+						pc=(pc +2) & 0xFFF;
 					break;
 				case 0xA000: // ANNN	MEM	I = NNN	Sets I to the address NNN.
 					t1=(opcode & 0xFFF);
@@ -209,10 +228,10 @@ class chip8 {
 					break;
 				case 0xB000: // BNNN	Flow	PC=V0+NNN	Jumps to the address NNN plus V0.
 					t1=(opcode & 0xFFF) ;
-					pc = v[0] +t1;
+					pc = (v[0] +t1) & 0xFFF;
 					return;
 				case 0xC000: //CXNN	Rand	Vx=rand()&NN	Sets VX to the result of a bitwise and operation on a random number (Typically: 0 to 255) and NN.
-					t1= rand() & 0xFF;
+					t1= rand() & (opcode &0xFF);
 					t2=(opcode & 0xF00) >> 8 ;
 					v[t2] = t1;
 					break;
@@ -228,26 +247,26 @@ class chip8 {
 							if((pixel & (0x80 >> i)) != 0)
 							{
 								if(gfx[(v[t1] + i + ((v[t2] + j) * 64))] == 1)
-									v[0xF] = 1;                                 
+									v[0xF] = 1;
 								gfx[(v[t1] + i + ((v[t2] + j) * 64))] ^= 1;
 							}
-						} 
+						}
 					}
 					break;
-				case 0xE000: 
+				case 0xE000:
 					t1= (opcode & 0xF00) >> 8;
 					if ((opcode &0xFF) == 0x9E) {
 						if (keypress(v[t1])) //EX9E	KeyOp	if(key()==Vx)	Skips the next instruction if the key stored in VX is pressed. (Usually the next instruction is a jump to skip a code block)
-							pc+=2;
+							pc= (pc +2) & 0xFFF;
 					} else { // EXA1	KeyOp	if(key()!=Vx)	Skips the next instruction if the key stored in VX isn't pressed. (Usually the next instruction is a jump to skip a code block)
-						if (!keypress(v[t1])) 
-							pc+=2;
+						if (!keypress(v[t1]))
+							pc =(pc + 2) &0xFFF;
 					}
 					break;
 				case 0xF000:
 					handleF(opcode);
 					break;
-				default: 
+				default:
 				  printf("known opcode: %x \n", opcode);
 					done =true;
 			};
@@ -277,7 +296,7 @@ class chip8 {
 
 		// If the draw flag is set, update the screen
 		bool drawFlag;
-#ifndef UNITTEST 
+#ifndef UNITTEST
 	private:
 #endif
 
@@ -306,7 +325,7 @@ class chip8 {
 					break;
 				case 5: //8XY5	Math	Vx -= Vy	VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
 					v[0xF] = 1;
-					if (Vx > Vy) 
+					if (Vx > Vy)
 						v[0xF] = 0;
 					Vx-= Vy;
 					break;
@@ -316,7 +335,7 @@ class chip8 {
 					break;
 				case 7: //8XY7	Math	Vx=Vy-Vx	Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
 					v[0xF] = 1;
-					if (Vy < Vx) 
+					if (Vy < Vx)
 						v[0xF] = 0;
 					Vx= Vy - Vx;
 					break;
@@ -331,7 +350,7 @@ class chip8 {
 			switch (opcode &0xFF) {
 				case 0x07: // FX07	Timer	Vx = get_delay()	Sets VX to the value of the delay timer.
 					Vx = delay_timer;
-					break;	
+					break;
 				case 0x0A: // FX0A	KeyOp	Vx = get_key()	A key press is awaited, and then stored in VX. (Blocking Operation. All instruction halted until next key event)
 					Vx = keyConvert(getchar());
 					break;
@@ -345,7 +364,7 @@ class chip8 {
 					I +=Vx;
 					break;
 				case 0x29: // FX29	MEM	I=sprite_addr[Vx]	Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.
-					I = (5 * Vx);
+					I = (Vx &0xF) * 5;
 					break;
 				case 0x33:
 					/*
@@ -360,25 +379,35 @@ class chip8 {
 					memory[I + 2] = (Vx % 100) % 10;
 					break;
 				case 0x55: //FX55	MEM	reg_dump(Vx,&I)	Stores V0 to VX (including VX) in memory starting at address I.[4]
-					for (int i=0; i<32; i+=2) {
-						memory[I+i] = (v[i] >> 8 )& 0xFF;
-						memory[I+i+1] = (v[i] & 0xFF);
-
+					for (int i=0; i<(Vx); i++) {
+						memory[I+(i*2)] = (v[i] >> 8 )& 0xFF;
+						memory[I+(i*2)+1] = (v[i] & 0xFF);
 					}
 					break;
 				case 0x65: // FX65	MEM	reg_load(Vx,&I)	Fills V0 to VX (including VX) with values from memory starting at address I.[4]
-					for (int i=0; i< 32; i+=2) {
-						v[i] = (memory[I+i] << 8) ;
-						v[i] += memory[I+i+1];
+					for (int i=0; i< (Vx); i++) {
+						v[i] = (memory[I+(i*2)] << 8) ;
+						v[i] += memory[I+(i*2)+1];
+					}
+					break;
+				case 0x75: // FX75	store V regs in r reg
+					for (int i=0; i< (Vx); i++) {
+						r[i]= v[i];
+					}
+					break;
+				case 0x85: // FX85	store r regs in V reg
+					for (int i=0; i< (Vx); i++) {
+						v[i] = r[i];
 					}
 					break;
 			}
 		}
 		unsigned char memory[4096];
 		unsigned char v[16];
+		unsigned char r[8];
 		unsigned short I=0;
 		unsigned short pc=0;
-		unsigned char gfx[32*64]; //x -y 
+		unsigned char gfx[32*64]; //x -y
 		unsigned char delay_timer;
 		unsigned char sound_timer;
 		unsigned short stack[16];
