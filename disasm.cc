@@ -24,8 +24,10 @@ int main (int argc, char * argv[]) {
 	}
   unsigned short opcode;
 	while (2 ==read(fid, &opcode, 2) ) {
-		printf("%04X ", htons(opcode));
-		desc.describe(htons(opcode), stdout);
+		opcode = htons(opcode);
+		desc.decode(opcode, stdout);
+		printf(";\t%04X ", opcode);
+		desc.describe(opcode, stdout);
 		printf("\n");
 	}
 	close(fid);

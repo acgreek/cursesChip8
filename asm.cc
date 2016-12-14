@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
+#include "chip8_decode.h"
+
 
 
 int main (int argc, char * argv[]) {
@@ -18,16 +20,15 @@ int main (int argc, char * argv[]) {
 	char line[1024];
 		
 	FILE *fid = fopen(argv[1],"r");
+	ChipInstructionDescription desc;
 
 	if (fid <=0)  {
 		fprintf(stderr, "failed to open file: %s\n", strerror(errno));
 		exit(-1);
 	}
-  unsigned short opcode;
 	while (!feof(fid) ) {
 		if (NULL != fgets(line, sizeof(line), fid)) {
-			opcode = ntohs(strtol(line, NULL, 16));	
-			fwrite(&opcode, 2,1, stdout);
+			desc.asm_code(line, stdout);
     }
 
 	}
