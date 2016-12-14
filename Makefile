@@ -5,10 +5,10 @@ LDFLAGS = -lncurses
 chip8:chip8.cc chip8.h keyboard.h
 	g++ $(CXXFLAGS) chip8.cc -o chip8 $(LDFLAGS)
 
-asm:asm.cc
+asm:asm.cc chip8_decode.h
 	g++ $(CXXFLAGS) asm.cc -o asm $(LDFLAGS)
 
-disasm:disasm.cc
+disasm:disasm.cc chip8_decode.h
 	g++ $(CXXFLAGS) disasm.cc -o disasm $(LDFLAGS)
 
 test:test.cc
