@@ -118,6 +118,8 @@ class chip8 {
 
 		void emulateCycle() {
 			emulateCycle_();
+			if (pc >  sizeof(memory)) 
+				done= true;
 			if (delay_timer) 
 				delay_timer--;
 			if (sound_timer)
@@ -134,6 +136,9 @@ class chip8 {
 			switch(opcode & 0xF000) {
 				case 0x0000:
 					switch(opcode) {
+						case 0x0000: //clear screen 
+						  //noop
+						  break;
 						case 0x00E0: //clear screen 
 //							printf("clear screen\n");
 					    drawFlag = true;

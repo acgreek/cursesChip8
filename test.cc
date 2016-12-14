@@ -8,6 +8,7 @@
 #include <signal.h>
 #include <assert.h>
 #include "keyboard.h"
+#include "chip8_decode.h"
 
 bool terminated=false;
 
@@ -50,11 +51,23 @@ void testAddReg5Lit() {
 	assert(c8.v[5] == 0x0A);
 }
 
+void testShift() {
+	chip8 c8;
+	ChipInstructionDescription d;
+  c8.initialize();
+  c8.LoadInstruction(0, ntohs(d.asm_code_conv("SET V0 5")));
+  c8.LoadInstruction(1, ntohs(d.asm_code_conv("LSFT V0 V2")));
+  c8.emulateCycle();
+  c8.emulateCycle();
+	assert(c8.v[0xF] == 1);
+	assert(c8.v[0x0] == 2);
+}
 
 int main(int argc, char **argv) {
 	testAssignLit();
 	testAddLit();
 	testAddReg5Lit();
+	testShift();
   // Initialize the Chip8 system and load the game into the memory  
   return 0;
 }
