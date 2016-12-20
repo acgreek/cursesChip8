@@ -170,14 +170,37 @@ void testAddReg12OverFlow() {
 void testSubReg12() {
 	chip8 c8;
 	doThree(c8, "SET V0 6","SET V1 5", "SUB V0 V1");
-	assert(c8.v[0xF] == 0);
+	assert(c8.v[0xF] == 1);
 	assert(c8.v[0] == 1);
 }
 void testSubReg12OverFlow() {
 	chip8 c8;
 	doThree(c8, "SET V0 5","SET V1 10", "SUB V0 V1");
-	assert(c8.v[0xF] == 1);
+	assert(c8.v[0xF] == 0);
 	assert(c8.v[0] == 251);
+}
+void testRegDump() {
+	chip8 c8;
+	ChipInstructionDescription d;
+	c8.initialize();
+	c8.v[0] =9;
+	c8.v[1] =8;
+	c8.v[2] =7;
+	c8.v[3] =6;
+	c8.v[4] =5;
+	c8.LoadInstruction(0, ntohs(d.asm_code_conv("DUMPREG V4")));
+	c8.emulateCycle();
+	memset(c8.v, 255, sizeof(c8.v));
+	c8.LoadInstruction(0, ntohs(d.asm_code_conv("LOADREG V4")));
+	c8.emulateCycle();
+	assert(c8.v[0] == 9);
+	assert(c8.v[1] == 8);
+	assert(c8.v[2] == 7);
+	assert(c8.v[3] == 6);
+	assert(c8.v[4] == 5);
+	assert(c8.v[5] == 255);
+	assert(c8.v[6] == 255);
+
 }
 
 int main(int argc, char **argv) {
@@ -210,6 +233,7 @@ int main(int argc, char **argv) {
 	testNEqTrue();
 	testNEqFalse();
 
+	testRegDump();
 	// Initialize the Chip8 system and load the game into the memory
 	return 0;
 }

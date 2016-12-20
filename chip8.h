@@ -13,7 +13,7 @@
 	 3XNN	Cond	if(Vx==NN)	Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to skip a code block)
 	 4XNN	Cond	if(Vx!=NN)	Skips the next instruction if VX doesn't equal NN. (Usually the next instruction is a jump to skip a code block)
 	 5XY0	Cond	if(Vx==Vy)	Skips the next instruction if VX equals VY. (Usually the next instruction is a jump to skip a code block)
-	 6XNN	Const	Vx = NN	Sets VX to NN.
+	 6XNN	Const	Vx = NN	 Sets VX to NN.
 	 7XNN	Const	Vx += NN	Adds NN to VX.
 	 8XY0	Assign	Vx=Vy	Sets VX to the value of VY.
 	 8XY1	BitOp	Vx=Vx|Vy	Sets VX to VX or VY. (Bitwise OR operation)
@@ -70,7 +70,10 @@ static unsigned char chip8_fontset[80] =
 
 class chip8 {
 	public:
-		chip8() : drawFlag(false), done() {};
+		chip8() : drawFlag(false), done() {
+		};
+		~chip8(){
+		}
 		bool isDone() const {
 			return done;
 		}
@@ -328,9 +331,7 @@ class chip8 {
 					Vx+= Vy;
 					break;
 				case 5: //8XY5	Math	Vx -= Vy	VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
-					v[0xF] = 1;
-					if (Vx > Vy)
-						v[0xF] = 0;
+					v[0xF] = Vx > Vy;
 					Vx-= Vy;
 					break;
 				case 6: //8XY6	BitOp	Vx >> 1	Shifts VX right by one. VF is set to the value of the least significant bit of VX before the shift.[2]
@@ -338,9 +339,7 @@ class chip8 {
 					Vx= Vx>> 1;
 					break;
 				case 7: //8XY7	Math	Vx=Vy-Vx	Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
-					v[0xF] = 1;
-					if (Vy < Vx)
-						v[0xF] = 0;
+					v[0xF] = Vy > Vx;
 					Vx= Vy - Vx;
 					break;
 				case 0xE: //8XYE	BitOp	Vx << 1	Shifts VX left by one. VF is set to the value of the most significant bit of VX before the shift.[2]
@@ -418,4 +417,5 @@ class chip8 {
 		unsigned short sp;
 		unsigned char key[16];
 		bool done;
+
 };
