@@ -15,7 +15,7 @@ struct opt {
 
 
 
-std::map<unsigned short,std::function<void(unsigned short,FILE*)> >    intmap = 
+std::map<unsigned short,std::function<void(unsigned short,FILE*)> >    intmap =
 {
 {0x00E0, []( unsigned short opcode, FILE * fid) {fprintf(fid, "CLEAR SCREEN");} },
 {0x00EE, []( unsigned short opcode, FILE * fid) {fprintf(fid, "RETURN"); } },
@@ -69,9 +69,9 @@ struct opt opts[] = {
 {0x8003, 0xF00F,"XOR", 2, 0, "8XY3	BitOp	Vx=Vx^Vy	Sets VX to VX xor VY."},
 {0x8004, 0xF00F,"ADD", 2, 0, "8XY4	Math	Vx += Vy	Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't."},
 {0x8005, 0xF00F,"SUB", 2, 0, "8XY5	Math	Vx -= Vy	VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't."},
-{0x8006, 0xF00F,"LSFT", 2, 0, "8XY6	BitOp	Vx >> 1	Shifts VX right by one. VF is set to the value of the least significant bit of VX before the shift.[2]"},
+{0x8006, 0xF00F,"RSFT", 2, 0, "8XY6	BitOp	Vx >> 1	Shifts VX right by one. VF is set to the value of the least significant bit of VX before the shift.[2]"},
 {0x8007, 0xF00F,"SUBFR", 2, 0, "8XY7	Math	Vx=Vy-Vx	Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't."},
-{0x800E, 0xF00F,"RSFT", 2, 0, "8XYE	BitOp	Vx << 1	Shifts VX left by one. VF is set to the value of the most significant bit of VX before the shift.[2]"},
+{0x800E, 0xF00F,"LSFT", 2, 0, "8XYE	BitOp	Vx << 1	Shifts VX left by one. VF is set to the value of the most significant bit of VX before the shift.[2]"},
 {0x9000, 0xF00F,"!EQ", 2, 0, "9XY0	Cond	if(Vx!=Vy)	Skips the next instruction if VX doesn't equal VY. (Usually the next instruction is a jump to skip a code block)"},
 {0xA000, 0xF000,"ISET", 0, 3, "ANNN	MEM	I = NNN	Sets I to the address NNN."},
 {0xB000, 0xF000,"JMP", 0, 3, "BNNN	Flow	PC=V0+NNN	Jumps to the address NNN plus V0."},
@@ -123,12 +123,12 @@ class ChipInstructionDescription {
 			fwrite(&opcode, 2,1, fid);
 		}
 		unsigned short asm_code_conv(std::string asmcmd) {
-			std::vector<std::string> lvector; 
-			split (asmcmd,  ';',lvector); 
+			std::vector<std::string> lvector;
+			split (asmcmd,  ';',lvector);
 			if (lvector.size () == 0 )
 				return 0;
-			std::vector<std::string> cvector; 
-			split (lvector[0],  ' ',cvector); 
+			std::vector<std::string> cvector;
+			split (lvector[0],  ' ',cvector);
 			if (cvector.size () == 0 )
 				return 0;
 			int regs=0;
@@ -171,7 +171,7 @@ class ChipInstructionDescription {
 			}
 			opcode = htons(opcode);
 			return opcode;
-			
+
 		}
 		void interprete(unsigned short opcode, FILE * fid) {
 			struct opt * copt= findOpt(opcode);
@@ -206,7 +206,7 @@ class ChipInstructionDescription {
 				return ;
 			}
 			fprintf(fid, "%40X", opcode);
-			
+
 		}
 
 		void describe(unsigned short opcode, FILE * fid) {
@@ -217,9 +217,9 @@ class ChipInstructionDescription {
 			}
 			fprintf(fid, "unknown opcode");
 		}
-	private: 
+	private:
 		struct opt * findOpt(unsigned short opcode) {
-			std::map<unsigned short, optMap>::iterator itr = optMaskMap.begin(); 
+			std::map<unsigned short, optMap>::iterator itr = optMaskMap.begin();
 			while (itr != optMaskMap.end()) {
 				if (1 == itr->second.count(itr->first & opcode)) {
 					return & optMaskMap[itr->first] [opcode & itr->first];
