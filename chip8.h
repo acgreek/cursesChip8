@@ -118,9 +118,9 @@ class chip8 {
 
 		void emulateCycle() {
 			emulateCycle_();
-			if (pc >  sizeof(memory)) 
+			if (pc >  sizeof(memory))
 				done= true;
-			if (delay_timer) 
+			if (delay_timer)
 				delay_timer--;
 			if (sound_timer)
 				sound_timer--;
@@ -136,7 +136,7 @@ class chip8 {
 			switch(opcode & 0xF000) {
 				case 0x0000:
 					switch(opcode) {
-						case 0x0000: //clear screen 
+						case 0x0000: //clear screen
 						  //noop
 						  break;
 						case 0x00FD: // stop emulator
@@ -203,7 +203,7 @@ class chip8 {
 					break;
 				case 0x5000: //5XY0	Cond	if(Vx==Vy)	Skips the next instruction if VX equals VY. (Usually the next instruction is a jump to skip a code block)
 					t1=(opcode & 0xF00) >>8;
-					t2=(opcode & 0xF0 >> 4);
+					t2=((opcode & 0xF0) >> 4);
 					if (v[t1] == v[t2])
 						pc= (pc +2) & 0xFFF;
 					break;

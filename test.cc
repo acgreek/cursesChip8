@@ -60,6 +60,18 @@ void doTwo(chip8 &c8, const char *one, const char *two ) {
 	c8.emulateCycle();
 
 }
+void doThree(chip8 &c8, const char *one, const char *two,const char * three ) {
+	ChipInstructionDescription d;
+	c8.initialize();
+	c8.LoadInstruction(0, ntohs(d.asm_code_conv(one)));
+	c8.LoadInstruction(1, ntohs(d.asm_code_conv(two)));
+	c8.LoadInstruction(2, ntohs(d.asm_code_conv(three)));
+	c8.emulateCycle();
+	c8.emulateCycle();
+	c8.emulateCycle();
+
+}
+
 
 void testRightShift() {
 	chip8 c8;
@@ -85,6 +97,38 @@ void testLeftShiftNoOverFlow() {
 	assert(c8.v[0xF] == 0);
 	assert(c8.v[0x0] == 254);
 }
+void testEqFalse() {
+	chip8 c8;
+	doTwo(c8, "SET V0 127", "EQ V0 255");
+	assert(c8.pc  == 516);
+}
+void testEqTrue() {
+	chip8 c8;
+	doTwo(c8, "SET V0 127", "EQ V0 127");
+	assert(c8.pc  == 518);
+}
+void testNEqFalse() {
+	chip8 c8;
+	doTwo(c8, "SET V0 127", "!EQ V0 127");
+	assert(c8.pc  == 516);
+}
+void testNEqTrue() {
+	chip8 c8;
+	doTwo(c8, "SET V0 127", "!EQ V0 3");
+	assert(c8.pc  == 518);
+}
+void testEqV2False() {
+	chip8 c8;
+	doThree(c8, "SET V0 127","SET V1 255", "EQ V0 V1");
+	assert(c8.pc  == 518);
+}
+void testEqV2True() {
+	chip8 c8;
+	doThree(c8, "SET V0 127","SET V1 127", "EQ V0 V1");
+	assert(c8.pc  == 520);
+}
+
+
 
 int main(int argc, char **argv) {
 	testAssignLit();
@@ -94,6 +138,13 @@ int main(int argc, char **argv) {
 	testRightShift();
 	testLeftShiftNoOverFlow();
 	testLeftShift();
+	//conditionals
+	testEqTrue();
+	testEqFalse();
+	testEqV2True();
+	testEqV2False();
+	testNEqTrue();
+	testNEqFalse();
 	// Initialize the Chip8 system and load the game into the memory
 	return 0;
 }
