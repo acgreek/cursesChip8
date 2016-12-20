@@ -167,12 +167,26 @@ void testAddReg12OverFlow() {
 	assert(c8.v[0xF] == 1);
 	assert(c8.v[0] == 5);
 }
+void testSubReg12() {
+	chip8 c8;
+	doThree(c8, "SET V0 6","SET V1 5", "SUB V0 V1");
+	assert(c8.v[0xF] == 0);
+	assert(c8.v[0] == 1);
+}
+void testSubReg12OverFlow() {
+	chip8 c8;
+	doThree(c8, "SET V0 5","SET V1 10", "SUB V0 V1");
+	assert(c8.v[0xF] == 1);
+	assert(c8.v[0] == 251);
+}
 
 int main(int argc, char **argv) {
 	// assign
 	testAssignLit();
 
 	// math
+	testSubReg12();
+	testSubReg12OverFlow();
 	testAddReg12();
 	testAddReg12OverFlow();
 	testAddLit();
