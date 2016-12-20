@@ -11,5 +11,5 @@ asm:asm.cc chip8_decode.h
 disasm:disasm.cc chip8_decode.h
 	g++ $(CXXFLAGS) disasm.cc -o disasm $(LDFLAGS)
 
-test:test.cc
+test:test.cc chip8.h
 	g++ $(CXXFLAGS) test.cc -o test $(LDFLAGS)

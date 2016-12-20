@@ -323,7 +323,7 @@ class chip8 {
 					break;
 				case 4: //8XY4	Math	Vx += Vy	Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
 					v[0xF] = 0;
-					if (((int)Vx +(int) Vy) > USHRT_MAX)
+					if (((int)Vx +(int) Vy) > UCHAR_MAX)
 						v[0xF] = 1;
 					Vx+= Vy;
 					break;
