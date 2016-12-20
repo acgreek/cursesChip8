@@ -382,24 +382,22 @@ class chip8 {
 					memory[I + 2] = (Vx % 100) % 10;
 					break;
 				case 0x55: //FX55	MEM	reg_dump(Vx,&I)	Stores V0 to VX (including VX) in memory starting at address I.[4]
-					for (int i=0; i<(Vx); i++) {
-						memory[I+(i*2)] = (v[i] >> 8 )& 0xFF;
-						memory[I+(i*2)+1] = (v[i] & 0xFF);
+					for (int i=0; i<=((opcode & 0xF00) >>8 ); i++) {
+						memory[I+i] = v[i];
 					}
 					break;
 				case 0x65: // FX65	MEM	reg_load(Vx,&I)	Fills V0 to VX (including VX) with values from memory starting at address I.[4]
-					for (int i=0; i< (Vx); i++) {
-						v[i] = (memory[I+(i*2)] << 8) ;
-						v[i] += memory[I+(i*2)+1];
+					for (int i=0; i<=((opcode & 0xF00) >>8 ); i++) {
+						v[i] = memory[I+i];
 					}
 					break;
 				case 0x75: // FX75	store V regs in r reg
-					for (int i=0; i< (Vx); i++) {
+					for (int i=0; i<=((opcode & 0xF00) >>8 ); i++) {
 						r[i]= v[i];
 					}
 					break;
 				case 0x85: // FX85	store r regs in V reg
-					for (int i=0; i< (Vx); i++) {
+					for (int i=0; i<=((opcode & 0xF00) >>8 ); i++) {
 						v[i] = r[i];
 					}
 					break;
