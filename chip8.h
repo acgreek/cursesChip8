@@ -279,22 +279,22 @@ class chip8 {
 				ckey = 10 + (k - 'a');
 				*/
 			switch(k) {
-				case 'z': return 0;
-				case 'x': return 1;
-				case 'c': return 2;
-				case 'a': return 3;
-				case 's': return 4;
-				case 'd': return 5;
-				case 'q': return 6;
-				case 'w': return 7;
-				case 'e': return 8;
-				case '1': return 9;
-				case '3': return 10;
-				case '4': return 11;
-				case '5': return 12;
-				case '6': return 13;
-				case '7': return 14;
-				case '8': return 15;
+				case 'x': return 0;
+				case '1': return 1;
+				case '2': return 2;
+				case '3': return 3;
+				case 'q': return 4;
+				case 'w': return 5;
+				case 'e': return 6;
+				case 'a': return 7;
+				case 's': return 8;
+				case 'd': return 9;
+				case 'z': return 10;
+				case 'c': return 11;
+				case '4': return 12;
+				case 'r': return 13;
+				case 'f': return 14;
+				case 'v': return 15;
 			}
 			return ckey;
 		}
