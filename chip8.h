@@ -70,7 +70,7 @@ static unsigned char chip8_fontset[80] =
 
 class chip8 {
 	public:
-		chip8() : drawFlag(false), done() {
+		chip8() : drawFlag(false), done(),esm(false) {
 		};
 		~chip8(){
 		}
@@ -100,10 +100,10 @@ class chip8 {
 			sound_timer=0;
 		}
 		int getMaxX()const  {
-			return 64;
+			return esm? 128: 64;
 		}
 		int getMaxY()const  {
-			return 32;
+			return esm? 64: 32;
 		}
 		unsigned char *getGfx() {
 			return gfx;
@@ -156,10 +156,10 @@ class chip8 {
 							break;
 						case 0x00FF: // enabled extend screen mode
 							// not implemented
-							abort();
+							esm = true;
 							break;
 						case 0x00Fe: // disable extend screen mode
-							abort();
+							esm = false;
 							break;
 						case 0x00E0: //clear screen
 							drawFlag = true;
@@ -248,14 +248,31 @@ class chip8 {
 					v[0xF] = 0;
 					t1=((opcode & 0xF00) >>8) &0xf;
 					t2=((opcode & 0xF0) >> 4) & 0xf;
-					for (j=0; j < (opcode &0xF); j++) {
+					if (esm && ((opcode &0xF) == 0)) {
+						for (j=0; j < (opcode &0xF); j++) {
+							char hi = memory[I +2 * j ];
+							char lo = memory[I +2 * j +2 ];
+							unsigned short sprite = hi << 8 | lo;
+							for (int i= 0; i < 16; i++) {
+								int px = (v[t1] +i) & 127;
+								int py = (v[t2] +j) & 63;
+								int pos = 128 * py + px;
+								//what to plot
+								int pixel = (sprite &( 1 << (15 - i) )) != 0;
+								v[15] |= (gfx[pos] & pixel);
+								gfx[pos] ^= pixel;
+
+							}
+						}
+					}
+					else for (j=0; j < (opcode &0xF); j++) {
 						int pixel = memory[I+ j];
 						for (i=0; i< 8; i++) {
 							if((pixel & (0x80 >> i)) != 0)
 							{
-								if(gfx[(v[t1] + i + ((v[t2] + j) * 64))] == 1)
+								if(gfx[(v[t1] + i + ((v[t2] + j) * getMaxX()))] == 1)
 									v[0xF] = 1;
-								gfx[(v[t1] + i + ((v[t2] + j) * 64))] ^= 1;
+								gfx[(v[t1] + i + ((v[t2] + j) * getMaxX()))] ^= 1;
 							}
 						}
 					}
@@ -369,6 +386,9 @@ class chip8 {
 				case 0x29: // FX29	MEM	I=sprite_addr[Vx]	Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.
 					I = (Vx &0xF) * 5;
 					break;
+				case 0x30: // FX29	MEM	I=sprite_addr[Vx]	Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.
+					I = 0x8200 + (Vx &0xF) * 10;
+					break;
 				case 0x33:
 					/*
 						 FX33	BCD	set_BCD(Vx);
@@ -408,12 +428,13 @@ class chip8 {
 		unsigned char r[8];
 		unsigned short I=0;
 		unsigned short pc=0;
-		unsigned char gfx[32*64]; //x -y
+		unsigned char gfx[128*64]; //x -y
 		unsigned char delay_timer;
 		unsigned char sound_timer;
 		unsigned short stack[16];
 		unsigned short sp;
 		unsigned char key[16];
 		bool done;
+		bool esm;
 
 };

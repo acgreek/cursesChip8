@@ -38,7 +38,7 @@ void  setupGraphics(){
 }
 void setupInput() {
 }
-int delay =10000;
+int delay =30000;
 void drawGraphics(int mx, int my, unsigned char * array) {
     clear();
    	for (int y=0; y <my; y++)  {
