@@ -174,7 +174,20 @@ class chip8 {
 							sp--;
 							break; //we want it to move to next instruction
 						default:
-							if (opcode != 0) {
+							if ((opcode & 0xFFF0) == 0x00c0) {
+								int rowsiz = getMaxX();
+								int colsiz = getMaxY();
+								int n = (opcode & 0xf);
+								int start_row = 0, last_row = colsiz - n - 1;
+								for (int row = last_row; row >= start_row; row--) {
+									for (int x = 0; x < rowsiz; x++) {
+										int from = row * rowsiz + x;
+										int to = (row + n) * rowsiz + x;
+										gfx[to] = gfx[from];
+									}
+								}
+							}
+							else if (opcode != 0) {
 								done =true;
 								printf("known opcode: %x \n", opcode);
 							}
