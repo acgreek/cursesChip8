@@ -1,0 +1,123 @@
+6A02 6XNN	Const	Vx = NN	Sets VX to NN.
+6B0C 6XNN	Const	Vx = NN	Sets VX to NN.
+6C3F 6XNN	Const	Vx = NN	Sets VX to NN.
+6D0C 6XNN	Const	Vx = NN	Sets VX to NN.
+A2EA  ANNN	MEM	I = NNN	Sets I to the address NNN.
+DAB6 DXYN	Disp	draw(Vx,Vy,N)	Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; I value doesnât change after the execution of this instruction. As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesnât happen
+DCD6 DXYN	Disp	draw(Vx,Vy,N)	Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; I value doesnât change after the execution of this instruction. As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesnât happen
+6E00 6XNN	Const	Vx = NN	Sets VX to NN.
+22D4 2NNN	Flow	*(0xNNN)()	Calls subroutine at NNN.
+6603 6XNN	Const	Vx = NN	Sets VX to NN.
+6802 6XNN	Const	Vx = NN	Sets VX to NN.
+6060 6XNN	Const	Vx = NN	Sets VX to NN.
+F015  FX15	Timer	delay_timer(Vx)	Sets the delay timer to VX.
+F007  FX07	Timer	Vx = get_delay()	Sets VX to the value of the delay timer.
+3000 3XNN	Cond	if(Vx==NN)	Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to skip a code block)
+121A 1NNN	Flow	goto NNN;	Jumps to address NNN.
+C717 CXNN	Rand	Vx=rand()&NN	Sets VX to the result of a bitwise and operation on a random number (Typically: 0 to 255) and NN.
+7708   7XNN	Const	Vx += NN	Adds NN to VX.
+69FF 6XNN	Const	Vx = NN	Sets VX to NN.
+A2F0  ANNN	MEM	I = NNN	Sets I to the address NNN.
+D671 DXYN	Disp	draw(Vx,Vy,N)	Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; I value doesnât change after the execution of this instruction. As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesnât happen
+A2EA  ANNN	MEM	I = NNN	Sets I to the address NNN.
+DAB6 DXYN	Disp	draw(Vx,Vy,N)	Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; I value doesnât change after the execution of this instruction. As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesnât happen
+DCD6 DXYN	Disp	draw(Vx,Vy,N)	Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; I value doesnât change after the execution of this instruction. As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesnât happen
+6001 6XNN	Const	Vx = NN	Sets VX to NN.
+E0A1  EXA1	KeyOp	if(key()!=Vx)	Skips the next instruction if the key stored in VX isn't pressed. (Usually the next instruction is a jump to skip a code block)
+7BFE   7XNN	Const	Vx += NN	Adds NN to VX.
+6004 6XNN	Const	Vx = NN	Sets VX to NN.
+E0A1  EXA1	KeyOp	if(key()!=Vx)	Skips the next instruction if the key stored in VX isn't pressed. (Usually the next instruction is a jump to skip a code block)
+7B02   7XNN	Const	Vx += NN	Adds NN to VX.
+601F 6XNN	Const	Vx = NN	Sets VX to NN.
+8B02 8XY2	BitOp	Vx=Vx&Vy	Sets VX to VX and VY. (Bitwise AND operation)
+DAB6 DXYN	Disp	draw(Vx,Vy,N)	Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; I value doesnât change after the execution of this instruction. As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesnât happen
+600C 6XNN	Const	Vx = NN	Sets VX to NN.
+E0A1  EXA1	KeyOp	if(key()!=Vx)	Skips the next instruction if the key stored in VX isn't pressed. (Usually the next instruction is a jump to skip a code block)
+7DFE   7XNN	Const	Vx += NN	Adds NN to VX.
+600D 6XNN	Const	Vx = NN	Sets VX to NN.
+E0A1  EXA1	KeyOp	if(key()!=Vx)	Skips the next instruction if the key stored in VX isn't pressed. (Usually the next instruction is a jump to skip a code block)
+7D02   7XNN	Const	Vx += NN	Adds NN to VX.
+601F 6XNN	Const	Vx = NN	Sets VX to NN.
+8D02 8XY2	BitOp	Vx=Vx&Vy	Sets VX to VX and VY. (Bitwise AND operation)
+DCD6 DXYN	Disp	draw(Vx,Vy,N)	Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; I value doesnât change after the execution of this instruction. As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesnât happen
+A2F0  ANNN	MEM	I = NNN	Sets I to the address NNN.
+D671 DXYN	Disp	draw(Vx,Vy,N)	Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; I value doesnât change after the execution of this instruction. As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesnât happen
+8684 8XY4	Math	Vx += Vy	Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
+8794 8XY4	Math	Vx += Vy	Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
+603F 6XNN	Const	Vx = NN	Sets VX to NN.
+8602 8XY2	BitOp	Vx=Vx&Vy	Sets VX to VX and VY. (Bitwise AND operation)
+611F 6XNN	Const	Vx = NN	Sets VX to NN.
+8712 8XY2	BitOp	Vx=Vx&Vy	Sets VX to VX and VY. (Bitwise AND operation)
+4602 4XNN	Cond	if(Vx!=NN)	Skips the next instruction if VX doesn't equal NN. (Usually the next instruction is a jump to skip a code block)
+1278 1NNN	Flow	goto NNN;	Jumps to address NNN.
+463F 4XNN	Cond	if(Vx!=NN)	Skips the next instruction if VX doesn't equal NN. (Usually the next instruction is a jump to skip a code block)
+1282 1NNN	Flow	goto NNN;	Jumps to address NNN.
+471F 4XNN	Cond	if(Vx!=NN)	Skips the next instruction if VX doesn't equal NN. (Usually the next instruction is a jump to skip a code block)
+69FF 6XNN	Const	Vx = NN	Sets VX to NN.
+4700 4XNN	Cond	if(Vx!=NN)	Skips the next instruction if VX doesn't equal NN. (Usually the next instruction is a jump to skip a code block)
+6901 6XNN	Const	Vx = NN	Sets VX to NN.
+D671 DXYN	Disp	draw(Vx,Vy,N)	Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; I value doesnât change after the execution of this instruction. As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesnât happen
+122A 1NNN	Flow	goto NNN;	Jumps to address NNN.
+6802 6XNN	Const	Vx = NN	Sets VX to NN.
+6301 6XNN	Const	Vx = NN	Sets VX to NN.
+8070 8XY0	Assign	Vx=Vy	Sets VX to the value of VY.
+80B5 8XY5	Math	Vx -= Vy	VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
+128A 1NNN	Flow	goto NNN;	Jumps to address NNN.
+68FE 6XNN	Const	Vx = NN	Sets VX to NN.
+630A 6XNN	Const	Vx = NN	Sets VX to NN.
+8070 8XY0	Assign	Vx=Vy	Sets VX to the value of VY.
+80D5 8XY5	Math	Vx -= Vy	VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
+3F01 3XNN	Cond	if(Vx==NN)	Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to skip a code block)
+12A2 1NNN	Flow	goto NNN;	Jumps to address NNN.
+6102 6XNN	Const	Vx = NN	Sets VX to NN.
+8015 8XY5	Math	Vx -= Vy	VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
+3F01 3XNN	Cond	if(Vx==NN)	Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to skip a code block)
+12BA 1NNN	Flow	goto NNN;	Jumps to address NNN.
+8015 8XY5	Math	Vx -= Vy	VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
+3F01 3XNN	Cond	if(Vx==NN)	Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to skip a code block)
+12C8 1NNN	Flow	goto NNN;	Jumps to address NNN.
+8015 8XY5	Math	Vx -= Vy	VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
+3F01 3XNN	Cond	if(Vx==NN)	Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to skip a code block)
+12C2 1NNN	Flow	goto NNN;	Jumps to address NNN.
+6020 6XNN	Const	Vx = NN	Sets VX to NN.
+F018 FX18	Sound	sound_timer(Vx)	Sets the sound timer to VX.
+22D4 2NNN	Flow	*(0xNNN)()	Calls subroutine at NNN.
+8E34 8XY4	Math	Vx += Vy	Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
+22D4 2NNN	Flow	*(0xNNN)()	Calls subroutine at NNN.
+663E 6XNN	Const	Vx = NN	Sets VX to NN.
+3301 3XNN	Cond	if(Vx==NN)	Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to skip a code block)
+6603 6XNN	Const	Vx = NN	Sets VX to NN.
+68FE 6XNN	Const	Vx = NN	Sets VX to NN.
+3301 3XNN	Cond	if(Vx==NN)	Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to skip a code block)
+6802 6XNN	Const	Vx = NN	Sets VX to NN.
+1216 1NNN	Flow	goto NNN;	Jumps to address NNN.
+79FF   7XNN	Const	Vx += NN	Adds NN to VX.
+49FE 4XNN	Cond	if(Vx!=NN)	Skips the next instruction if VX doesn't equal NN. (Usually the next instruction is a jump to skip a code block)
+69FF 6XNN	Const	Vx = NN	Sets VX to NN.
+12C8 1NNN	Flow	goto NNN;	Jumps to address NNN.
+7901   7XNN	Const	Vx += NN	Adds NN to VX.
+4902 4XNN	Cond	if(Vx!=NN)	Skips the next instruction if VX doesn't equal NN. (Usually the next instruction is a jump to skip a code block)
+6901 6XNN	Const	Vx = NN	Sets VX to NN.
+6004 6XNN	Const	Vx = NN	Sets VX to NN.
+F018 FX18	Sound	sound_timer(Vx)	Sets the sound timer to VX.
+7601   7XNN	Const	Vx += NN	Adds NN to VX.
+4640 4XNN	Cond	if(Vx!=NN)	Skips the next instruction if VX doesn't equal NN. (Usually the next instruction is a jump to skip a code block)
+76FE   7XNN	Const	Vx += NN	Adds NN to VX.
+126C 1NNN	Flow	goto NNN;	Jumps to address NNN.
+A2F2  ANNN	MEM	I = NNN	Sets I to the address NNN.
+FE33 FX33	BCD	set_BCD(Vx); *(I+0)=BCD(3); *(I+1)=BCD(2); *(I+2)=BCD(1);
+F265  FX65	MEM	reg_load(Vx,&I)	Fills V0 to VX (including VX) with values from memory starting at address I.[4]
+F129  FX29	MEM	I=sprite_addr[Vx]	Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.
+6414 6XNN	Const	Vx = NN	Sets VX to NN.
+6500 6XNN	Const	Vx = NN	Sets VX to NN.
+D455 DXYN	Disp	draw(Vx,Vy,N)	Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; I value doesnât change after the execution of this instruction. As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesnât happen
+7415   7XNN	Const	Vx += NN	Adds NN to VX.
+F229  FX29	MEM	I=sprite_addr[Vx]	Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.
+D455 DXYN	Disp	draw(Vx,Vy,N)	Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; I value doesnât change after the execution of this instruction. As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesnât happen
+00EE return
+8080 8XY0	Assign	Vx=Vy	Sets VX to the value of VY.
+8080 8XY0	Assign	Vx=Vy	Sets VX to the value of VY.
+8080 8XY0	Assign	Vx=Vy	Sets VX to the value of VY.
+8000 8XY0	Assign	Vx=Vy	Sets VX to the value of VY.
+0000 unknown opcode
+0000 unknown opcode
