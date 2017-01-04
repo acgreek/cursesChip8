@@ -118,6 +118,14 @@ class chip8 {
 			fread(memory + pc, 1,sizeof(memory) -pc , fd);
 			fclose(fd);
 		}
+		void dumpRegs() {
+			printf("pc=%d ", pc);
+			printf("I=%d ", I);
+			printf("sp=%d ", sp);
+			for (int i=0; i < 16; i++) 
+				printf("v%d=%d ", i, v[i]);
+			printf("\n");
+		} 
 
 		void emulateCycle() {
 			emulateCycle_();
@@ -129,6 +137,7 @@ class chip8 {
 				sound_timer--;
 
 		}
+
 #define OP_nnn (opcode & 0xFFF)
 #define OP_nn (opcode & 0xFF)
 #define OP_n (opcode & 0xF)
@@ -137,6 +146,9 @@ class chip8 {
 #define VOP_X v[((opcode & 0xF00) >> 8)]
 #define VOP_Y v[((opcode & 0xF0) >> 4)]
 		// Emulate one cycle
+		unsigned short getCurrentOpcode() {
+			return memory[pc] << 8 | memory[pc + 1];
+		}
 		void emulateCycle_() {
 
 			drawFlag = false;
