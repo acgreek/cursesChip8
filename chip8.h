@@ -230,61 +230,52 @@ class chip8 {
 					pc = opcode &0xFFF;
 					return; // notice return here
 				case 0x3000:   //3XNN	Cond	if(Vx==NN)	Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to skip a code block)
-					t1=(opcode & 0xF00) >>8;
-					t2=(opcode & 0xFF);
-					if (v[t1] == t2)
+#define OP_nnn (opcode & 0xFFF)
+#define OP_nn (opcode & 0xFF)
+#define OP_X ((opcode & 0xF00) >> 8)
+#define OP_Y ((opcode & 0xF0) >> 4)
+#define VOP_X v[((opcode & 0xF00) >> 8)]
+#define VOP_Y v[((opcode & 0xF0) >> 4)]
+					if (VOP_X == OP_nn)
 						pc= (pc +2) & 0xFFF;
 					break;
 				case 0x4000: //4XNN	Cond	if(Vx!=NN)	Skips the next instruction if VX doesn't equal NN. (Usually the next instruction is a jump to skip a code block)
-					t1=(opcode & 0xF00) >>8;
-					t2=(opcode & 0xFF);
-					if (v[t1] != t2)
+					if (VOP_X != OP_nn)
 						pc= (pc + 2) & 0xFFF;
 					break;
 				case 0x5000: //5XY0	Cond	if(Vx==Vy)	Skips the next instruction if VX equals VY. (Usually the next instruction is a jump to skip a code block)
-					t1=(opcode & 0xF00) >>8;
-					t2=((opcode & 0xF0) >> 4);
-					if (v[t1] == v[t2])
+					if (VOP_X == v[OP_Y])
 						pc= (pc +2) & 0xFFF;
 					break;
 				case 0x6000: //6XNN	Const	Vx = NN	Sets VX to NN.
-					t1=(opcode & 0xF00) >>8;
-					t2=(opcode & 0xFF);
-					v[t1]  = t2;
+					VOP_X = OP_nn;
 					break;
 				case 0x7000: //  7XNN	Const	Vx += NN	Adds NN to VX.
-					t1=(opcode & 0xF00) >>8;
-					t2=(opcode & 0xFF);
-					v[t1] += t2;
+					VOP_X += OP_nn;
 					break;
 				case 0x8000:
 					handle8(opcode);
 					break;
 				case 0x9000: //9XY0	Cond	if(Vx!=Vy)	Skips the next instruction if VX doesn't equal VY. (Usually the next instruction is a jump to skip a code block)
-					t1 = v[(opcode & 0xF00) >> 8];
-					t2 = v[(opcode & 0xF0) >> 4];
-					if (t1 != t2)
+					if (VOP_X != VOP_Y)
 						pc=(pc +2) & 0xFFF;
 					break;
 				case 0xA000: // ANNN	MEM	I = NNN	Sets I to the address NNN.
-					t1=(opcode & 0xFFF);
-					I = t1;
+					I = OP_nnn;
 					break;
 				case 0xB000: // BNNN	Flow	PC=V0+NNN	Jumps to the address NNN plus V0.
-					t1=(opcode & 0xFFF) ;
-					pc = (v[0] +t1) & 0xFFF;
+					pc = (v[0] +OP_nnn) & 0xFFF;
 					return;
 				case 0xC000: //CXNN	Rand	Vx=rand()&NN	Sets VX to the result of a bitwise and operation on a random number (Typically: 0 to 255) and NN.
-					t1= rand() & (opcode &0xFF);
-					t2=(opcode & 0xF00) >> 8 ;
-					v[t2] = t1;
+					t1= rand() & OP_nn;
+					v[OP_X] = t1;
 					break;
 				case 0xD000:  //DXYN	Disp	draw(Vx,Vy,N)	Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; I value doesnât change after the execution of this instruction. As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesnât happen
 					drawFlag = true;
 
 					v[0xF] = 0;
-					t1=((opcode & 0xF00) >>8) &0xf;
-					t2=((opcode & 0xF0) >> 4) & 0xf;
+					t1=OP_X;
+					t2=OP_Y;
 					if (esm && ((opcode &0xF) == 0)) {
 						for (j=0; j < (opcode &0xF); j++) {
 							char hi = memory[I +2 * j ];
@@ -315,7 +306,7 @@ class chip8 {
 					}
 					break;
 				case 0xE000:
-					t1= (opcode & 0xF00) >> 8;
+					t1= OP_X;
 					if ((opcode &0xFF) == 0x9E) {
 						if (keypress(v[t1])) //EX9E	KeyOp	if(key()==Vx)	Skips the next instruction if the key stored in VX is pressed. (Usually the next instruction is a jump to skip a code block)
 							pc= (pc +2) & 0xFFF;
@@ -335,10 +326,30 @@ class chip8 {
 		}
 		char keyConvert(char k) {
 			char ckey=-1;
+			/*
 			if (k>= '0' && k <= '9')
 				ckey = k - '0';
 			if (k>= 'a' && k <= 'f')
 				ckey = 10 + (k - 'a');
+				*/
+			switch(k) {
+				case 'x': return 0;
+				case '1': return 1;
+				case '2': return 2;
+				case '3': return 3;
+				case 'q': return 4;
+				case 'w': return 5;
+				case 'e': return 6;
+				case 'a': return 7;
+				case 's': return 8;
+				case 'd': return 9;
+				case 'z': return 10;
+				case 'c': return 11;
+				case '4': return 12;
+				case 'r': return 13;
+				case 'f': return 14;
+				case 'v': return 15;
+			}
 			return ckey;
 		}
 
@@ -363,20 +374,20 @@ class chip8 {
 
 		short ckey;
 		void handle8(unsigned short opcode) {
-			unsigned char & Vx = v[(opcode & 0xF00) >> 8];
-			unsigned char & Vy = v[(opcode & 0xF0) >> 4];
+			unsigned char & Vx = VOP_X;
+			unsigned char & Vy = VOP_Y;
 			switch(opcode &0xF) {
 				case 0: //8XY0	Assign	Vx=Vy	Sets VX to the value of VY.
-					Vx=Vy;
+					VOP_X=VOP_Y;
 					break;
 				case 1: //8XY1	BitOp	Vx=Vx|Vy	Sets VX to VX or VY. (Bitwise OR operation)
-					Vx= Vx| Vy;
+					VOP_X |= Vy;
 					break;
 				case 2: //8XY2	BitOp	Vx=Vx&Vy	Sets VX to VX and VY. (Bitwise AND operation)
-					Vx= Vx& Vy;
+					VOP_X &= Vy;
 					break;
 				case 3: //8XY3	BitOp	Vx=Vx^Vy	Sets VX to VX xor VY.
-					Vx= Vx^ Vy;
+					VOP_X ^= Vy;
 					break;
 				case 4: //8XY4	Math	Vx += Vy	Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
 					v[0xF] = 0;
@@ -403,7 +414,7 @@ class chip8 {
 			}
 		}
 		void handleF(unsigned short opcode) {
-			unsigned char & Vx = v[(opcode & 0xF00) >> 8];
+			unsigned char & Vx = VOP_X;
 			switch (opcode &0xFF) {
 				case 0x07: // FX07	Timer	Vx = get_delay()	Sets VX to the value of the delay timer.
 					Vx = delay_timer;
@@ -439,22 +450,22 @@ class chip8 {
 					memory[I + 2] = (Vx % 100) % 10;
 					break;
 				case 0x55: //FX55	MEM	reg_dump(Vx,&I)	Stores V0 to VX (including VX) in memory starting at address I.[4]
-					for (int i=0; i<=((opcode & 0xF00) >>8 ); i++) {
+					for (int i=0; i<=OP_X; i++) {
 						memory[I+i] = v[i];
 					}
 					break;
 				case 0x65: // FX65	MEM	reg_load(Vx,&I)	Fills V0 to VX (including VX) with values from memory starting at address I.[4]
-					for (int i=0; i<=((opcode & 0xF00) >>8 ); i++) {
+					for (int i=0; i<=OP_X; i++) {
 						v[i] = memory[I+i];
 					}
 					break;
 				case 0x75: // FX75	store V regs in r reg
-					for (int i=0; i<=((opcode & 0xF00) >>8 ); i++) {
+					for (int i=0; i<=OP_X; i++) {
 						r[i]= v[i];
 					}
 					break;
 				case 0x85: // FX85	store r regs in V reg
-					for (int i=0; i<=((opcode & 0xF00) >>8 ); i++) {
+					for (int i=0; i<=OP_X; i++) {
 						v[i] = r[i];
 					}
 					break;

@@ -24,6 +24,8 @@ void  setupGraphics(){
 		printf("Your terminal does not support color\n");
 		exit(1);
 	}
+	
+	#if 0 
 	start_color();
 	init_pair(1, COLOR_RED, COLOR_RED);
 	init_pair(2, COLOR_BLUE, COLOR_BLUE);
@@ -31,6 +33,7 @@ void  setupGraphics(){
 	init_pair(4, COLOR_WHITE, COLOR_WHITE);
 	init_pair(5, COLOR_WHITE, COLOR_BLACK);
 	wbkgd(stdscr, COLOR_PAIR(2));
+#endif
 	noecho();
 	curs_set(FALSE);
 	srand (time(NULL));
@@ -38,19 +41,19 @@ void  setupGraphics(){
 }
 void setupInput() {
 }
-int delay =30000;
+int delay =10000;
 void drawGraphics(int mx, int my, unsigned char * array) {
     clear();
    	for (int y=0; y <my; y++)  {
    	 for (int x=0; x <mx; x++)  {
-		attron(COLOR_PAIR(3));
+		//attron(COLOR_PAIR(5));
 		if (array[x + (y * mx)] )
 	   		mvprintw(y, x, "%c", 'A');
 //		 	printf("%c",array[x + (y * mx)] ? 'X': ' ');
      }
 //		 printf("\n");
     }
-	attron(COLOR_PAIR(5));
+	//attron(COLOR_PAIR(5));
 	wnoutrefresh(stdscr);
 	doupdate();
 	usleep(delay);
