@@ -148,11 +148,35 @@ class chip8 {
 							break;
 						case 0x00Fb: // scroll 4 pixels to the right
 							// not implemented
-							abort();
+							/* 00FB: SCR - Scroll 4 pixels to the right. */
+							{
+							int rowsiz = getMaxX();
+							int colsiz = getMaxY();
+							int start_col = 0, last_col = rowsiz - 4 - 1;
+							for (int col = last_col; col >= start_col; col--) {
+								for (int y = 0; y < colsiz; y++) {
+									int from = y * rowsiz + col;
+									int to = y * rowsiz + (4 + col);
+									gfx[to] = gfx[from];
+								}
+							}
+							}
 							break;
 						case 0x00Fc: // scroll 4 pixels to the left
 							// not implemented
-							abort();
+							/* 00FC: SCL - Scroll 4 pixels to the left. */
+							{
+							int rowsiz = getMaxX();
+							int colsiz = getMaxY();
+							int start_col = 4, last_col = rowsiz - 1;
+							for (int col = start_col; col <= last_col; col++) {
+								for (int y = 0; y < colsiz; y++) {
+									int from = y * rowsiz + col;
+									int to = y * rowsiz + (col - 4);
+									gfx[to] = gfx[from];
+								}
+							}
+							}
 							break;
 						case 0x00FF: // enabled extend screen mode
 							// not implemented
