@@ -13,6 +13,7 @@ struct opt {
 	const char *description;
 };
 
+bool prev_cond=false;
 
 
 std::map<unsigned short,std::function<void(unsigned short,FILE*)> >    intmap =
@@ -28,9 +29,9 @@ std::map<unsigned short,std::function<void(unsigned short,FILE*)> >    intmap =
 {0x00FF, []( unsigned short opcode, FILE * fid) {fprintf(fid, "ESM");} },
 {0x1000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "GOTO %d", ((opcode &0xfff)-0x200)/2); } },
 {0x2000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "CALL %d", ((opcode &0xfff)-0x200)/2);} },
-{0x3000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "if not (V%d == %d)", (opcode &0xf00) >> 8, opcode &0xFF);} },
-{0x4000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "if not (V%d != %d)", (opcode &0xf00) >> 8, opcode &0xFF);} },
-{0x5000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "if not (V%d == V%d)", (opcode &0xf00) >> 8, (opcode &0xF0)>4 );} },
+{0x3000, []( unsigned short opcode, FILE * fid) {prev_cond =true; fprintf(fid, "if (V%d != %d)", (opcode &0xf00) >> 8, opcode &0xFF);} },
+{0x4000, []( unsigned short opcode, FILE * fid) {prev_cond =true;fprintf(fid, "if (V%d == %d)", (opcode &0xf00) >> 8, opcode &0xFF);} },
+{0x5000, []( unsigned short opcode, FILE * fid) {prev_cond =true;fprintf(fid, "if (V%d != V%d)", (opcode &0xf00) >> 8, (opcode &0xF0)>4 );} },
 {0x6000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = %d", (opcode &0xf00) >> 8, opcode &0xFF);} },
 {0x7000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d += %d", (opcode &0xf00) >> 8, opcode &0xFF);} },
 {0x8000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = V%d", (opcode &0xf00) >> 8, (opcode &0xF0) >>4);} },
@@ -42,13 +43,13 @@ std::map<unsigned short,std::function<void(unsigned short,FILE*)> >    intmap =
 {0x8006, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = V%d", (opcode &0xf00) >> 8, (opcode &0xF0) >>4);} },
 {0x8007, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = V%d", (opcode &0xf00) >> 8, (opcode &0xF0) >>4);} },
 {0x800E, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = V%d", (opcode &0xf00) >> 8, (opcode &0xF0) >>4);} },
-{0x9000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "if not (V%d != %d)", (opcode &0xf00) >> 8, opcode &0xFF);} },
+{0x9000, []( unsigned short opcode, FILE * fid) {prev_cond =true;fprintf(fid, "if (V%d == %d)", (opcode &0xf00) >> 8, opcode &0xFF);} },
 {0xA000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "I = %d", (opcode &0xfff));} },
 {0xB000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "pc = V0 + %d", (opcode &0xfff));} },
 {0xC000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = rand() & 0x%X",(opcode &0xf00) >> 8, opcode &0xFF );} },
 {0xD000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "DRAW at V%d by V%d height %d",(opcode &0xf00) >> 8,(opcode &0xf0) >> 4, opcode &0xF );} },
-{0xE09E, []( unsigned short opcode, FILE * fid) {fprintf(fid, "if not (key() == %d)", (opcode &0xf00) >> 8);} },
-{0xE0A1, []( unsigned short opcode, FILE * fid) {fprintf(fid, "if not (key() != %d)", (opcode &0xf00) >> 8);} },
+{0xE09E, []( unsigned short opcode, FILE * fid) {prev_cond =true;fprintf(fid, "if (key() != %d)", (opcode &0xf00) >> 8);} },
+{0xE0A1, []( unsigned short opcode, FILE * fid) {prev_cond =true;fprintf(fid, "if (key() == %d)", (opcode &0xf00) >> 8);} },
 {0xF007, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = delay_timer", (opcode &0xf00) >> 8);} },
 {0xF00A, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = getchar()", (opcode &0xf00) >> 8);} },
 {0xF015, []( unsigned short opcode, FILE * fid) {fprintf(fid, "delay_timer = V%d", (opcode &0xf00) >> 8);} },
@@ -196,6 +197,10 @@ class ChipInstructionDescription {
 		void interprete(unsigned short opcode, FILE * fid) {
 			struct opt * copt= findOpt(opcode);
 			if (copt) {
+				if (prev_cond) {
+					fprintf(fid, "\t");
+					prev_cond =false;
+				}
 				intmap[copt->opcode](opcode, fid);
 				return;
 			}
