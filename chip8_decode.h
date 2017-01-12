@@ -13,17 +13,25 @@ struct opt {
 	const char *description;
 };
 
+bool prev_cond=false;
 
 
 std::map<unsigned short,std::function<void(unsigned short,FILE*)> >    intmap =
 {
+{0x0000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "NOOP");} },
+{0x00C0, []( unsigned short opcode, FILE * fid) {fprintf(fid, "SCROLL DOWN %d", opcode &0xf);} },
 {0x00E0, []( unsigned short opcode, FILE * fid) {fprintf(fid, "CLEAR SCREEN");} },
 {0x00EE, []( unsigned short opcode, FILE * fid) {fprintf(fid, "RETURN"); } },
+{0x00FB, []( unsigned short opcode, FILE * fid) {fprintf(fid, "SCROLL LEFT 4");} },
+{0x00FC, []( unsigned short opcode, FILE * fid) {fprintf(fid, "SCROLL RIGHT 4");} },
+{0x00FD, []( unsigned short opcode, FILE * fid) {fprintf(fid, "DONE");} },
+{0x00FE, []( unsigned short opcode, FILE * fid) {fprintf(fid, "!ESM");} },
+{0x00FF, []( unsigned short opcode, FILE * fid) {fprintf(fid, "ESM");} },
 {0x1000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "GOTO %d", ((opcode &0xfff)-0x200)/2); } },
 {0x2000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "CALL %d", ((opcode &0xfff)-0x200)/2);} },
-{0x3000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "if (V%d == %d)", (opcode &0xf00) >> 8, opcode &0xFF);} },
-{0x4000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "if (V%d != %d)", (opcode &0xf00) >> 8, opcode &0xFF);} },
-{0x5000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "if (V%d == V%d)", (opcode &0xf00) >> 8, (opcode &0xF0)>4 );} },
+{0x3000, []( unsigned short opcode, FILE * fid) {prev_cond =true; fprintf(fid, "if (V%d != %d)", (opcode &0xf00) >> 8, opcode &0xFF);} },
+{0x4000, []( unsigned short opcode, FILE * fid) {prev_cond =true;fprintf(fid, "if (V%d == %d)", (opcode &0xf00) >> 8, opcode &0xFF);} },
+{0x5000, []( unsigned short opcode, FILE * fid) {prev_cond =true;fprintf(fid, "if (V%d != V%d)", (opcode &0xf00) >> 8, (opcode &0xF0)>4 );} },
 {0x6000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = %d", (opcode &0xf00) >> 8, opcode &0xFF);} },
 {0x7000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d += %d", (opcode &0xf00) >> 8, opcode &0xFF);} },
 {0x8000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = V%d", (opcode &0xf00) >> 8, (opcode &0xF0) >>4);} },
@@ -35,27 +43,37 @@ std::map<unsigned short,std::function<void(unsigned short,FILE*)> >    intmap =
 {0x8006, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = V%d", (opcode &0xf00) >> 8, (opcode &0xF0) >>4);} },
 {0x8007, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = V%d", (opcode &0xf00) >> 8, (opcode &0xF0) >>4);} },
 {0x800E, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = V%d", (opcode &0xf00) >> 8, (opcode &0xF0) >>4);} },
-{0x9000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "if (V%d != %d)", (opcode &0xf00) >> 8, opcode &0xFF);} },
+{0x9000, []( unsigned short opcode, FILE * fid) {prev_cond =true;fprintf(fid, "if (V%d == %d)", (opcode &0xf00) >> 8, opcode &0xFF);} },
 {0xA000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "I = %d", (opcode &0xfff));} },
 {0xB000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "pc = V0 + %d", (opcode &0xfff));} },
-{0xC000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%di = rand() & 0x%X",(opcode &0xf00) >> 8, opcode &0xFF );} },
-{0xD000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "DRAW at V%d by V%d hight %d",(opcode &0xf00) >> 8,(opcode &0xf0) >> 4, opcode &0xF );} },
-{0xE09E, []( unsigned short opcode, FILE * fid) {fprintf(fid, "if (key() == %d)", (opcode &0xf00) >> 8);} },
-{0xE0A1, []( unsigned short opcode, FILE * fid) {fprintf(fid, "if (key() != %d)", (opcode &0xf00) >> 8);} },
+{0xC000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = rand() & 0x%X",(opcode &0xf00) >> 8, opcode &0xFF );} },
+{0xD000, []( unsigned short opcode, FILE * fid) {fprintf(fid, "DRAW at V%d by V%d height %d",(opcode &0xf00) >> 8,(opcode &0xf0) >> 4, opcode &0xF );} },
+{0xE09E, []( unsigned short opcode, FILE * fid) {prev_cond =true;fprintf(fid, "if (key() != %d)", (opcode &0xf00) >> 8);} },
+{0xE0A1, []( unsigned short opcode, FILE * fid) {prev_cond =true;fprintf(fid, "if (key() == %d)", (opcode &0xf00) >> 8);} },
 {0xF007, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = delay_timer", (opcode &0xf00) >> 8);} },
 {0xF00A, []( unsigned short opcode, FILE * fid) {fprintf(fid, "V%d = getchar()", (opcode &0xf00) >> 8);} },
 {0xF015, []( unsigned short opcode, FILE * fid) {fprintf(fid, "delay_timer = V%d", (opcode &0xf00) >> 8);} },
 {0xF018, []( unsigned short opcode, FILE * fid) {fprintf(fid, "sound_timer = V%d", (opcode &0xf00) >> 8);} },
 {0xF01E, []( unsigned short opcode, FILE * fid) {fprintf(fid, "I += V%d",(opcode &0xf00) >> 8);} },
 {0xF029, []( unsigned short opcode, FILE * fid) {fprintf(fid, "I = sprite[V%d]",(opcode &0xf00) >> 8);} },
+{0xF030, []( unsigned short opcode, FILE * fid) {fprintf(fid, "I = SuperSprite[V%d]",(opcode &0xf00) >> 8);} },
 {0xF033, []( unsigned short opcode, FILE * fid) {fprintf(fid, "SETBCD(V%d)",(opcode &0xf00) >> 8);} },
 {0xF055, []( unsigned short opcode, FILE * fid) {fprintf(fid, "reg_dump(V%d,I)", (opcode &0xf00) >> 8);} },
 {0xF065, []( unsigned short opcode, FILE * fid) {fprintf(fid, "reg_load(V%d,I)", (opcode &0xf00) >> 8);} },
+{0xF075, []( unsigned short opcode, FILE * fid) {fprintf(fid, "reg_load(V%d,r%d)", (opcode &0xf00) >> 8, (opcode &0xf00) >> 8);} },
+{0xF085, []( unsigned short opcode, FILE * fid) {fprintf(fid, "reg_load(V%d,r%d", (opcode &0xf00) >> 8, (opcode &0xf00) >> 8);} },
 };
 
 struct opt opts[] = {
+{0x0000, 0xFFFF, "NOOP", 0,0, "no op, skip "},
+{0x00C0, 0xFFF0, "SCRLLDOWN", 0,1, "scroll down N bits"},
 {0x00E0, 0xFFFF, "CLRS", 0,0, "clear screen"},
 {0x00EE, 0xFFFF,"RETN", 0,0, "return"},
+{0x00FB, 0xFFFF, "SCRLLLEFT4", 0,0, "scroll left 4"},
+{0x00FC, 0xFFFF, "SCRLLRIGHT4", 0,0, "scroll right 4"},
+{0x00FD, 0xFFFF, "DONE", 0,0, "program is done. Terminate"},
+{0x00FE, 0xFFFF, "NOESM", 0,0, "disable (s)chip large screen"},
+{0x00FF, 0xFFFF, "ESM", 0,0, "enable (s)chip large screen"},
 {0x1000, 0xF000,"GOTO", 0,3, "1NNN	Flow	goto NNN;	Jumps to address NNN."},
 {0x2000, 0xF000,"CALL", 0,3, "2NNN	Flow	*(0xNNN)()	Calls subroutine at NNN."},
 {0x3000, 0xF000,"EQ", 1,2, "3XNN	Cond	if(Vx==NN)	Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to skip a code block)"},
@@ -85,9 +103,12 @@ struct opt opts[] = {
 {0xF018, 0xF0FF,"SETSND", 1, 0, "FX18	Sound	sound_timer(Vx)	Sets the sound timer to VX."},
 {0xF01E, 0xF0FF,"IADD", 1, 0, "FX1E	MEM	I +=Vx	Adds VX to I.[3]"},
 {0xF029, 0xF0FF,"ISPR", 1, 0, "FX29	MEM	I=sprite_addr[Vx]	Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font."},
+{0xF030, 0xF0FF,"ISPRL", 1, 0, "FX29	MEM	I=ssprite_addr[Vx]	Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font."},
 {0xF033, 0xF0FF,"SETBCD", 1, 0, "FX33	BCD	set_BCD(Vx); *(I+0)=BCD(3); *(I+1)=BCD(2); *(I+2)=BCD(1);"},
 {0xF055, 0xF0FF,"DUMPREG", 1, 0, "FX55	MEM	reg_dump(Vx,&I)	Stores V0 to VX (including VX) in memory starting at address I.[4]"},
-{0xF065, 0xF0FF,"LOADREG", 1, 0, "FX65	MEM	reg_load(Vx,&I)	Fills V0 to VX (including VX) with values from memory starting at address I.[4]"}
+{0xF065, 0xF0FF,"LOADREG", 1, 0, "FX65	MEM	reg_load(Vx,&I)	Fills V0 to VX (including VX) with values from memory starting at address I.[4]"},
+{0xF075, 0xF0FF,"DUMPREGR", 1, 0, "restores registers from backup in in r registers"},
+{0xF085, 0xF0FF,"LOADREGR", 1, 0, "backs up registers to special r registers"}
 };
 
 void split(const std::string &s, char delim, std::vector<std::string> &elems) {
@@ -176,6 +197,10 @@ class ChipInstructionDescription {
 		void interprete(unsigned short opcode, FILE * fid) {
 			struct opt * copt= findOpt(opcode);
 			if (copt) {
+				if (prev_cond) {
+					fprintf(fid, "\t");
+					prev_cond =false;
+				}
 				intmap[copt->opcode](opcode, fid);
 				return;
 			}

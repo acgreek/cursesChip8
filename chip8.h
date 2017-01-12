@@ -118,6 +118,14 @@ class chip8 {
 			fread(memory + pc, 1,sizeof(memory) -pc , fd);
 			fclose(fd);
 		}
+		void dumpRegs() {
+			printf("pc=%d ", pc);
+			printf("I=%d ", I);
+			printf("sp=%d ", sp);
+			for (int i=0; i < 16; i++) 
+				printf("v%d=%d ", i, v[i]);
+			printf("\n");
+		} 
 
 		void emulateCycle() {
 			emulateCycle_();
@@ -129,7 +137,18 @@ class chip8 {
 				sound_timer--;
 
 		}
+
+#define OP_nnn (opcode & 0xFFF)
+#define OP_nn (opcode & 0xFF)
+#define OP_n (opcode & 0xF)
+#define OP_X ((opcode & 0xF00) >> 8)
+#define OP_Y ((opcode & 0xF0) >> 4)
+#define VOP_X v[((opcode & 0xF00) >> 8)]
+#define VOP_Y v[((opcode & 0xF0) >> 4)]
 		// Emulate one cycle
+		unsigned short getCurrentOpcode() {
+			return memory[pc] << 8 | memory[pc + 1];
+		}
 		void emulateCycle_() {
 
 			drawFlag = false;
@@ -139,8 +158,7 @@ class chip8 {
 			switch(opcode & 0xF000) {
 				case 0x0000:
 					switch(opcode) {
-						case 0x0000: //clear screen
-						  //noop
+						case 0x0000: //noop
 						  break;
 						case 0x00FD: // stop emulator
 //							printf("clear screen\n");
@@ -218,7 +236,7 @@ class chip8 {
 					};
 					break;
 				case 0x1000: //1NNN	Flow	goto NNN;	Jumps to address NNN.
-					pc = opcode & 0xFFF;
+					pc = OP_nnn;
 					return;
 				case 0x2000:  //2NNN	Flow	*(0xNNN)()	Calls subroutine at NNN.
 					if (sp == sizeof(stack)/sizeof(short))  {
@@ -230,12 +248,6 @@ class chip8 {
 					pc = opcode &0xFFF;
 					return; // notice return here
 				case 0x3000:   //3XNN	Cond	if(Vx==NN)	Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to skip a code block)
-#define OP_nnn (opcode & 0xFFF)
-#define OP_nn (opcode & 0xFF)
-#define OP_X ((opcode & 0xF00) >> 8)
-#define OP_Y ((opcode & 0xF0) >> 4)
-#define VOP_X v[((opcode & 0xF00) >> 8)]
-#define VOP_Y v[((opcode & 0xF0) >> 4)]
 					if (VOP_X == OP_nn)
 						pc= (pc +2) & 0xFFF;
 					break;
